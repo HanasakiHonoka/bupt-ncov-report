@@ -10,7 +10,7 @@ const LOGIN = "uc/wap/login/check";
 const GET_REPORT = "ncov/wap/default/index";
 const POST_REPORT = "ncov/wap/default/save";
 const RETRY = 100;
-const TIMEOUT = 2000;
+const TIMEOUT = 5000;
 
 async function login(
     loginForm: LoginForm
