@@ -1,7 +1,7 @@
 import * as core from "@actions/core";
+import { log } from "console";
 import got, { Got } from "got";
 import { CookieJar } from "tough-cookie";
-import TelegramBot from "node-telegram-bot-api";
 import { LoginForm, DailyReportForm, DailyReportResponse } from "./form";
 import { sleep, randomBetween } from "./utils";
 
@@ -102,8 +102,8 @@ async function postDailyReportFormData(
 
 (async (): Promise<void> => {
     const loginForm: LoginForm = {
-        username: process.env["BUPT_USERNAME"],
-        password: process.env["BUPT_PASSWORD"]
+        username: '2019140718',
+        password: '05184015'
     }
 
     if (!(!!loginForm.username && !!loginForm.password)) {
@@ -128,33 +128,14 @@ async function postDailyReportFormData(
 
     console.log(`今日填报结果：${reportReponse.m}`);
 
-    const chatId = process.env["TG_CHAT_ID"];
-    const botToken = process.env["TG_BOT_TOKEN"];
-
-    if (!!chatId && !!botToken && reportReponse.m !== "今天已经填报了") {
-        const bot = new TelegramBot(botToken);
-        await bot.sendMessage(
-            chatId,
-            `今日填报结果：${reportReponse.m}`,
-            { "parse_mode": "Markdown" }
-        );
+    let rep = "http://pushplus.hxtrip.com/send?token=16366c89f2b64a3b90dfc9b99f1a34c3&title=yiqing&content=" + reportReponse.m;
+    console.log(rep);
+    const response = await got.get(rep);
+    if (response.statusCode != 200) {
+        throw new Error(`login 请求返回了 ${response.statusCode}`);
     }
+
 })().catch(err => {
-    const chatId = process.env["TG_CHAT_ID"];
-    const botToken = process.env["TG_BOT_TOKEN"];
-
-    if (!!chatId && !!botToken && err instanceof Error) {
-        const bot = new TelegramBot(botToken);
-        bot.sendMessage(
-            chatId,
-            `填报失败：\`${err.message}\``,
-            { "parse_mode": "Markdown" }
-        );
-        console.log(err);
-    } else {
-        throw err;
-    }
-}).catch(err => {
     if (err instanceof Error) {
         console.log(err.stack);
         core.setFailed(err.message);
